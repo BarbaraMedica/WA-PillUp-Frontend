@@ -1,7 +1,6 @@
 <template>
   <div
-    class="min-h-screen flex items-center justify-center bg-cover bg-center"
-    style="background-image: url('/pills.jpg')"
+    class="min-h-screen flex items-center justify-center bg-cover bg-center bg-gradient-to-br from-cyan-400 to-cyan-600"
   >
     <div class="relative z-10 w-full max-w-6xl mx-auto px-8 flex items-start justify-between gap-12">
       <div class="flex flex-col items-start pt-8">

@@ -50,12 +50,18 @@
               <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
                 <span>💊</span> Moji lijekovi/suplementi
               </button>
-              <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
+              <button
+               @click="$router.push('/dodaj-lijek')"
+               class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
                 <span>➕</span> Dodaj lijek/suplement
               </button>
-              <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
-                <span>📊</span> RPP Izvještaj
-              </button>
+              <button
+              @click="router.push('/ai-analiza')"
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2"
+            >
+              <span>📊</span> AI analiza
+            </button>
+
               <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
                 <span>📈</span> Moja statistika
               </button>
@@ -105,6 +111,9 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import api from "../usluge/api";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const imeKorisnika = ref("");
 

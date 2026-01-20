@@ -1,7 +1,6 @@
 <template>
   <div
-    class="min-h-screen flex items-center justify-center bg-cover bg-center relative"
-    style="background-image: url('/pills.jpg')"
+    class="min-h-screen flex items-center justify-center bg-cover bg-center relative bg-gradient-to-br from-cyan-400 to-cyan-600"
   >
     <!-- Background overlay for better contrast -->
     <div class="absolute inset-0 bg-black/10"></div>
