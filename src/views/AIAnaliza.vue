@@ -65,10 +65,17 @@
               >
                 <span>📊</span> PDF Izvještaj
               </button>
-              <button 
+               <button 
+                @click="$router.push('/ai-analiza')"
                 class="w-full text-left px-4 py-3 bg-cyan-50 text-cyan-600 rounded-lg font-semibold flex items-center gap-2"
               >
                 <span>🧠</span> AI analiza
+              </button>
+              <button 
+                @click="$router.push('/statistika')"
+                class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2"
+              >
+                <span>📈</span> Moja statistika
               </button>
               <button 
                 @click="$router.push('/postavke')"

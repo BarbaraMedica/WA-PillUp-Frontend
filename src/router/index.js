@@ -8,6 +8,7 @@ import DodajLijek from "../views/DodajLijek.vue";
 import PDFIzvjestaj from '../views/PDFIzvjestaj.vue';
 import AIAnaliza from "../views/AIAnaliza.vue";
 import Postavke from '../views/Postavke.vue';
+import Statistika from "../views/Statistika.vue";
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     component: MojiLijekovi
   },
   {
+    path: "/uredi-lijek/:id",
+    name: "UrediLijek",
+    component: () => import("../views/UrediLijek.vue")
+  },
+  {
   path: "/dodaj-lijek",
   name: "DodajLijek",
   component: DodajLijek,
@@ -54,6 +60,11 @@ const routes = [
     path: '/postavke', 
     name: 'Postavke',
     component: Postavke
+  },
+  {
+    path: "/statistika",
+    name: "Statistika",
+    component: Statistika
   }
 ];
 

@@ -77,8 +77,8 @@
                 <span>➕</span> Dodaj lijek/suplement
               </button>
               <button 
-                class="w-full text-left px-4 py-3 bg-cyan-50 text-cyan-600 rounded-lg font-semibold flex items-center gap-2"
-              >
+                @click="$router.push('/pdf-izvjestaj')"
+                class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2" >
                 <span>📊</span> PDF Izvještaj
               </button>
               <button
@@ -90,7 +90,7 @@
 
               <button 
                 @click="$router.push('/statistika')"
-                class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2"
+                class="w-full text-left px-4 py-3 bg-cyan-50 text-cyan-600 rounded-lg font-semibold flex items-center gap-2"
               >
                 <span>📈</span> Moja statistika
               </button>
@@ -135,179 +135,66 @@
               </div>
             </div>
           </div>
-
           <!-- Main Content -->
-          <div class="col-span-9 space-y-6">
-            <div class="flex items-center justify-between">
-              <h3 class="text-3xl font-bold text-cyan-600">Izvještaj</h3>
-              <button 
-                @click="preuzimiPDF"
-                class="bg-white border-2 border-cyan-600 text-cyan-600 hover:bg-cyan-50 px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Preuzmi PDF dokument
-              </button>
-            </div>
+<div class="col-span-9 space-y-6">
 
-            <!-- Uzeti lijekovi/suplementi -->
-            <div class="bg-white rounded-2xl shadow-md p-6">
-              <h4 class="text-2xl font-bold text-cyan-600 mb-4">Uzeti lijekovi/suplementi</h4>
-              <p class="text-gray-600 mb-6">Prikaz povijesti lijekova/suplementata i njihov utjecaj</p>
+  <div>
+    <h3 class="text-3xl font-bold text-cyan-600">Moja statistika</h3>
+    <p class="text-gray-600">Pregled raspoloženja i uzimanja lijekova</p>
+  </div>
 
-              <div class="space-y-4">
-                <div 
-                  v-for="lijek in uzetiLijekovi" 
-                  :key="lijek.id"
-                  class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                >
-                  <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-yellow-400 rounded-full flex items-center justify-center shadow-md transform rotate-45">
-                      <div class="w-8 h-8 bg-white rounded-full transform -rotate-45"></div>
-                    </div>
-                    <div>
-                      <h5 class="font-bold text-gray-800">{{ lijek.naziv }}</h5>
-                      <p class="text-sm text-gray-600">{{ lijek.opis }}</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <p class="font-semibold text-gray-800">{{ lijek.efekt }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+  <!-- Kartice statistike -->
+  <div class="grid grid-cols-3 gap-4">
+    
+    <div class="bg-white rounded-xl shadow p-4">
+      <p class="text-gray-500 text-sm">Pozitivni osjećaji</p>
+      <p class="text-3xl font-bold text-green-600">{{ pozitivni }}%</p>
+    </div>
 
-            <!-- Osobno unesene bilješke -->
-            <div class="bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-2xl shadow-md p-6 text-white">
-              <h4 class="text-2xl font-bold mb-4">Osobno unesene bilješke</h4>
-              <p class="text-sm mb-6 opacity-90">Dojmovi o lijeku/suplementu</p>
+    <div class="bg-white rounded-xl shadow p-4">
+      <p class="text-gray-500 text-sm">Neutralni osjećaji</p>
+      <p class="text-3xl font-bold text-yellow-500">{{ neutralni }}%</p>
+    </div>
 
-              <div class="grid grid-cols-2 gap-4">
-                <div 
-                  v-for="biljeska in biljeske" 
-                  :key="biljeska.id"
-                  class="bg-cyan-300/50 backdrop-blur rounded-xl p-4"
-                >
-                  <div class="flex items-start gap-3 mb-3">
-                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                      <span class="text-2xl">{{ biljeska.ikona }}</span>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-lg mb-1">{{ biljeska.naziv }}</h5>
-                      <p class="text-xs opacity-90">{{ biljeska.kategorija }}</p>
-                    </div>
-                  </div>
-                  <p class="text-sm leading-relaxed">{{ biljeska.tekst }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <p class="text-gray-500 text-sm">Negativni osjećaji</p>
+      <p class="text-3xl font-bold text-red-500">{{ negativni }}%</p>
+    </div>
+
+  </div>
+
+  <!-- Graf raspoloženja kroz vrijeme -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h4 class="font-bold mb-4">Opće stanje kroz vrijeme</h4>
+    <canvas id="grafStanje"></canvas>
+  </div>
+
+  <!-- Graf distribucije -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h4 class="font-bold mb-4">Distribucija raspoloženja</h4>
+    <canvas id="grafRaspolozenje"></canvas>
+  </div>
+
+</div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from "vue";
+<script setup>  
+import { ref, onMounted } from "vue"
+import Chart from "chart.js/auto"
 import api from "../usluge/api";
 import { useRouter } from "vue-router";
+
 const router = useRouter();
 const imeKorisnika = ref("");
-const menuOpen = ref(false);
+const pozitivni = ref(0)
+const neutralni = ref(0)
+const negativni = ref(0)
 const trenutniDatum = ref("");
 const trenutnoVrijeme = ref("");
-
-const idiNaPostavke = () => {
-  menuOpen.value = false;
-  router.push("/postavke");
-};
-
-const odjava = () => {
-  localStorage.removeItem("token");
-  menuOpen.value = false;
-  router.push("/prijava");
-};
-
-const uzetiLijekovi = ref([
-  {
-    id: 1,
-    naziv: "Aspirin",
-    opis: "Umanjenje glavobolje",
-    efekt: "Osjećaj djelovanja nakon 30 minuta"
-  },
-  {
-    id: 2,
-    naziv: "Multivitamins",
-    opis: "Dijetski suplement",
-    efekt: "Osjećaj više energičnosti"
-  },
-  {
-    id: 3,
-    naziv: "Melatonin",
-    opis: "Za probleme sa spavanjem",
-    efekt: "Zabilježeno pomogao sa kvalitetom sna"
-  },
-  {
-    id: 4,
-    naziv: "Željezo",
-    opis: "Mikronutrient",
-    efekt: "Manji osjećaj slabosti"
-  }
-]);
-
-const biljeske = ref([
-  {
-    id: 1,
-    naziv: "Aspirin",
-    kategorija: "Protiv bolova",
-    ikona: "💊",
-    tekst: "Nakon uzimanja aspirina, moje su glavobolje nestale nakon oko 30 minuta. Djelovanje je brzo!"
-  },
-  {
-    id: 2,
-    naziv: "Melatonin",
-    kategorija: "Pomoć za spavanje",
-    ikona: "😴",
-    tekst: "Melatonin mi je pomogao da brže zaspim i da se dobro odmorim. Osjećam se puno svežje nakon!"
-  },
-  {
-    id: 3,
-    naziv: "Vitamin C",
-    kategorija: "Imunitet",
-    ikona: "🌿",
-    tekst: "Vitamin C mi daje energiju kroz cijeli dan. Također sam primjetio da se rjeđe prehladim."
-  },
-  {
-    id: 4,
-    naziv: "Željezo kapsule",
-    kategorija: "Manji umor",
-    ikona: "🔴",
-    tekst: "Otkako koristim željezo, primjetila sam poboljšanje u energiji. Manji osjećaji slabosti tijekom dana."
-  }
-]);
-
-
-
-const preuzimiPDF = async () => {
-  try {
-    const response = await api.get("/izvjestaj/pdf", {
-      responseType: 'blob'
-    });
-    
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `PillUp_Izvjestaj_${new Date().toISOString().split('T')[0]}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (error) {
-    console.error("Greška pri preuzimanju PDF-a:", error);
-    alert("Došlo je do greške pri preuzimanju izvještaja");
-  }
-};
 
 const azurirajVrijeme = () => {
   const sada = new Date();
@@ -325,29 +212,52 @@ const azurirajVrijeme = () => {
 };
 
 onMounted(async () => {
-  // Ažuriraj vrijeme odmah
+     // Ažuriraj vrijeme odmah
   azurirajVrijeme();
   // Ažuriraj vrijeme svaku sekun
   setInterval(azurirajVrijeme, 1000);
-  
+  // Dohvati profil korisnika
+    const profilRes = await api.get("/korisnik/profil");
+    imeKorisnika.value = profilRes.data.ime || "Korisnik";
+
   try {
-    const res = await api.get("/korisnik/profil");
-    imeKorisnika.value = res.data.ime || "Korisnik";
-    
-    // Dohvati uzete lijekove
-    const lijekoviRes = await api.get("/izvjestaj/uzeti-lijekovi");
-    if (lijekoviRes.data) {
-      uzetiLijekovi.value = lijekoviRes.data;
-    }
-    
-    // Dohvati bilješke
-    const biljeskeRes = await api.get("/izvjestaj/biljeske");
-    if (biljeskeRes.data) {
-      biljeske.value = biljeskeRes.data;
-    }
-  } catch (error) {
-    console.error("Greška:", error);
+    const res = await api.get("/statistika/raspolozenje"); 
+    const { labels, stanje, pozitivni: p, neutralni: n, negativni: ng } = res.data;
+
+    pozitivni.value = p;
+    neutralni.value = n;
+    negativni.value = ng;
+
+    new Chart(document.getElementById("grafStanje"), {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Stanje",
+            data: stanje,
+            borderColor: "#06b6d4",
+            tension: 0.4
+          }
+        ]
+      }
+    });
+
+    new Chart(document.getElementById("grafRaspolozenje"), {
+      type: "doughnut",
+      data: {
+        labels: ["Pozitivno", "Neutralno", "Negativno"],
+        datasets: [
+          {
+            data: [pozitivni.value, neutralni.value, negativni.value],
+            backgroundColor: ["#22c55e", "#eab308", "#ef4444"]
+          }
+        ]
+      }
+    });
+
+  } catch (err) {
+    console.error("Greška pri dohvaćanju statistike:", err);
   }
 });
 </script>
-<style scoped></style>

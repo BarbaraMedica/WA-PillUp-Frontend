@@ -81,6 +81,13 @@
                 >
                 <span>📊</span> PDF Izvještaj
                 </button>
+                <button
+              @click="router.push('/ai-analiza')"
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2"
+            >
+               <span>🧠</span> AI analiza
+            </button>
+
               <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
                 <span>📈</span> Moja statistika
               </button>
@@ -164,7 +171,7 @@
 
                   <div class="mt-4 flex gap-2">
                     <button 
-                      @click="urediLijek(lijek.id)"
+                      @click="urediLijek(lijek._id)"
                       class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded-lg font-semibold transition-colors"
                     >
                       Uredi
@@ -192,46 +199,84 @@
             </div>
 
             <!-- Filter sekcija -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-              <h3 class="text-xl font-bold text-cyan-600 mb-4">Zabilježi djelotvoni utjecaj</h3>
-              
-              <div class="grid grid-cols-3 gap-4 mb-4">
-                <button 
-                  :class="filter === 'djelotvornost' ? 'bg-cyan-600 text-white' : 'bg-gray-100'"
-                  @click="filter = 'djelotvornost'"
-                  class="px-4 py-2 rounded-lg font-semibold transition-colors"
-                >
-                  Djelotvornost
-                </button>
-                <button 
-                  :class="filter === 'nuspojave' ? 'bg-cyan-600 text-white' : 'bg-gray-100'"
-                  @click="filter = 'nuspojave'"
-                  class="px-4 py-2 rounded-lg font-semibold transition-colors"
-                >
-                  Nuspojave i blagotvorne učinke
-                </button>
-                <button 
-                  :class="filter === 'biljezka' ? 'bg-cyan-600 text-white' : 'bg-gray-100'"
-                  @click="filter = 'biljezka'"
-                  class="px-4 py-2 rounded-lg font-semibold transition-colors"
-                >
-                  Bilješka
-                </button>
-              </div>
-
-              <div class="bg-cyan-50 rounded-lg p-4">
-                <p class="text-gray-700 mb-3">{{ filterOpis }}</p>
-                <textarea 
-                  v-model="biljezka"
-                  placeholder="Unesite svoju bilješku..."
-                  class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  rows="3"
-                ></textarea>
-                <button class="mt-3 bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
-                  Spremi unos
-                </button>
-              </div>
-            </div>
+<div class="bg-white rounded-lg shadow-md p-6">
+  <h3 class="text-xl font-bold text-cyan-600 mb-4">Zabilježi djelotvoni utjecaj</h3>
+  <!-- Odabir lijeka -->
+  <div class="mb-4">
+    <label class="block text-sm font-semibold text-gray-700 mb-1">Za koji lijek/suplement?</label>
+    <select 
+      v-model="odabraniLijekId"
+      class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+    >
+      <option value="">-- Odaberite lijek --</option>
+      <option v-for="lijek in lijekovi" :key="lijek.id" :value="lijek.id">
+        {{ lijek.ime }} ({{ lijek.doza }})
+      </option>
+    </select>
+  </div>
+  <!-- Vrsta bilješke -->
+  <div class="grid grid-cols-3 gap-4 mb-4">
+    <button 
+      :class="filter === 'djelotvornost' ? 'bg-cyan-600 text-white' : 'bg-gray-100'"
+      @click="filter = 'djelotvornost'"
+      class="px-4 py-2 rounded-lg font-semibold transition-colors"
+    >
+      Djelotvornost
+    </button>
+    <button 
+      :class="filter === 'nuspojave' ? 'bg-cyan-600 text-white' : 'bg-gray-100'"
+      @click="filter = 'nuspojave'"
+      class="px-4 py-2 rounded-lg font-semibold transition-colors"
+    >
+      Nuspojave i blagotvorne učinke
+    </button>
+    <button 
+      :class="filter === 'biljeska' ? 'bg-cyan-600 text-white' : 'bg-gray-100'"
+      @click="filter = 'biljeska'"
+      class="px-4 py-2 rounded-lg font-semibold transition-colors"
+    >
+      Bilješka
+    </button>
+  </div>
+  <div class="bg-cyan-50 rounded-lg p-4">
+    <p class="text-gray-700 mb-3">{{ filterOpis }}</p>
+    <textarea 
+      v-model="biljeska"
+      placeholder="Unesite svoju bilješku..."
+      class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      rows="3"
+    ></textarea>
+    <div class="flex items-center gap-3 mt-3">
+      <button 
+        @click="spreminiBiljesku"
+        :disabled="spremavanjeUTijeku || !odabraniLijekId || !biljeska.trim()"
+        class="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+      >
+        {{ spremavanjeUTijeku ? 'Sprema se...' : 'Spremi unos' }}
+      </button>
+      <span v-if="porukaUspjeha" class="text-green-600 font-semibold">✅ Bilješka spremljena!</span>
+      <span v-if="porukaGreske" class="text-red-600 font-semibold">❌ Greška pri spremanju</span>
+    </div>
+  </div>
+  <!-- Prikaz prethodnih bilješki -->
+  <div v-if="biljeske.length > 0" class="mt-6">
+    <h4 class="font-bold text-gray-700 mb-3">Prethodne bilješke</h4>
+    <div class="space-y-3 max-h-60 overflow-y-auto">
+      <div 
+        v-for="b in biljeske" 
+        :key="b.id"
+        class="bg-gray-50 rounded-lg p-3 border-l-4 border-cyan-400"
+      >
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-semibold text-sm text-cyan-700">{{ b.lijek_ime || imeLijekaPoId(b.lijek_id) }}</span>
+          <span class="text-xs text-gray-400 capitalize">{{ b.vrsta }}</span>
+        </div>
+        <p class="text-sm text-gray-700">{{ b.tekst }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ formatirajDatum(b.datum_unosa || b.created_at) }}</p>
+      </div>
+    </div>
+  </div>
+</div>
           </div>
         </div>
       </div>
@@ -245,14 +290,28 @@ import api from "../usluge/api";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const imeKorisnika = ref("Barbara");
+
+const imeKorisnika = ref("Korisnik");
 const lijekovi = ref([]);
 const filter = ref('djelotvornost');
-const biljezka = ref('');
 const menuOpen = ref(false);
 const trenutniDatum = ref("");
 const trenutnoVrijeme = ref("");
+const odabraniLijekId = ref('');
+const biljeska = ref('');
+const biljeske = ref([]);
+const spremavanjeUTijeku = ref(false);
+const porukaUspjeha = ref(false);
+const porukaGreske = ref(false);
 
+const filterOpis = computed(() => {
+  const opisi = {
+    djelotvornost: 'Ocijenite koliko vam lijek/suplement pomaže kod simptoma zbog kojih ste ga počeli uzimati.',
+    nuspojave: 'Zabilježite sve nuspojave ili blagotvorne učinke koje primjećujete.',
+    biljeska: 'Dodatna opažanja i napomene o lijeku.'
+  };
+  return opisi[filter.value];
+});
 
 const idiNaPostavke = () => {
   menuOpen.value = false;
@@ -264,15 +323,6 @@ const odjava = () => {
   menuOpen.value = false;
   router.push("/prijava");
 };
-
-const filterOpis = computed(() => {
-  const opisi = {
-    djelotvornost: 'Ocijenite koliko vam lijek/suplement pomaže kod simptoma zbog kojih ste ga počeli uzimati.',
-    nuspojave: 'Zabilježite sve nuspojave ili blagotvorne učinke koje primjećujete.',
-    biljezka: 'Dodatna opažanja i napomene o lijeku.'
-  };
-  return opisi[filter.value];
-});
 
 const dohvatiLijekove = async () => {
   try {
@@ -300,40 +350,77 @@ const obrisiLijek = async (id) => {
 };
 
 const izracunajDanaDoNarucivanja = (lijek) => {
-  if (!lijek.preostalo || !lijek.ucestalost) return 'N/A';
-  const dana = Math.floor(lijek.preostalo / lijek.ucestalost);
-  return dana;
+  if (lijek.preostalo == null || lijek.ucestalost == null) return 'N/A';
+  return Math.floor(lijek.preostalo / lijek.ucestalost);
+};
+
+const spreminiBiljesku = async () => {
+  if (!odabraniLijekId.value || !biljeska.value.trim()) return;
+  spremavanjeUTijeku.value = true;
+  porukaUspjeha.value = false;
+  porukaGreske.value = false;
+  try {
+    await api.post("/biljeske", {
+      lijek_id: odabraniLijekId.value,
+      vrsta: filter.value,
+      tekst: biljeska.value.trim(),
+    });
+    biljeska.value = '';
+    odabraniLijekId.value = '';
+    porukaUspjeha.value = true;
+    setTimeout(() => (porukaUspjeha.value = false), 3000);
+    await dohvatiBiljeske();
+  } catch (error) {
+    console.error("Greška pri spremanju bilješke:", error);
+    porukaGreske.value = true;
+    setTimeout(() => (porukaGreske.value = false), 3000);
+  } finally {
+    spremavanjeUTijeku.value = false;
+  }
+};
+
+const dohvatiBiljeske = async () => {
+  try {
+    const res = await api.get("/biljeske");
+    biljeske.value = res.data;
+  } catch (error) {
+    console.error("Greška pri dohvaćanju bilješki:", error);
+  }
+};
+
+const imeLijekaPoId = (id) => {
+  const lijek = lijekovi.value.find(l => l.id === id);
+  return lijek ? lijek.ime : 'Nepoznat lijek';
+};
+
+const formatirajDatum = (datum) => {
+  if (!datum) return '';
+  return new Date(datum).toLocaleString('hr-HR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
 };
 
 const azurirajVrijeme = () => {
   const sada = new Date();
-  
-  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
   const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
-  const danTjedna = daniTjedna[sada.getDay()];
-  
-  // Format vremena: "19:23"
+  trenutniDatum.value = daniTjedna[sada.getDay()];
   const sati = String(sada.getHours()).padStart(2, '0');
   const minute = String(sada.getMinutes()).padStart(2, '0');
-  
-  trenutniDatum.value = danTjedna;
   trenutnoVrijeme.value = `${sati}:${minute}`;
 };
 
 onMounted(async () => {
-  // Ažuriraj vrijeme odmah
   azurirajVrijeme();
-  // Ažuriraj vrijeme svaku sekun
   setInterval(azurirajVrijeme, 1000);
-  
   try {
     const res = await api.get("/korisnik/profil");
     imeKorisnika.value = res.data.ime || "Korisnik";
   } catch (error) {
     console.error("Greška:", error);
   }
-  
   await dohvatiLijekove();
+  await dohvatiBiljeske();
 });
 </script>
 <style scoped></style>

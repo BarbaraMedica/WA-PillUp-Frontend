@@ -81,7 +81,16 @@
                 >
                 <span>📊</span> PDF Izvještaj
                 </button>
-              <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
+                <button
+              @click="router.push('/ai-analiza')"
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2"
+            >
+               <span>🧠</span> AI analiza
+            </button>
+
+              <button
+               @click="router.push('/statistika')"
+               class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
                 <span>📈</span> Moja statistika
               </button>
               <button 
@@ -290,16 +299,16 @@ const spremiLijek = async () => {
   }
   try {
     await api.post("/lijekovi", {
-      ime: ime.value,
-      doza: doza.value,
-      vrijeme: vrijeme.value,
-      kolicina: kolicina.value,
-      trajanje: trajanje.value,
-      ucestalost: ucestalost.value,
-      nacin: "oralno",
-      preostalo: kolicina.value,
-      podsjetnik: podsjetnik.value
-    });
+  ime: ime.value,
+  doza: doza.value,
+  vrijeme: vrijeme.value,
+  kolicina: Number(kolicina.value),
+  trajanje: Number(trajanje.value),
+  ucestalost: Number(ucestalost.value),
+  nacin: "oralno",
+  preostalo: Number(kolicina.value),
+  podsjetnik: podsjetnik.value
+});
 
     alert("Lijek uspješno spremljen");
     router.push("/glavni");
