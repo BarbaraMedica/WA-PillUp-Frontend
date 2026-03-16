@@ -45,10 +45,10 @@
           </h2>
           <div class="flex items-center gap-4 text-gray-600">
             <span class="bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
-              1. prosinac 2025
+              {{ trenutniDatum }}
             </span>
             <span class="bg-cyan-100 text-cyan-600 px-4 py-2 rounded-full font-semibold">
-              9:41 AM
+              {{ trenutnoVrijeme }}
             </span>
           </div>
         </div>
@@ -92,9 +92,6 @@
                 class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2"
               >
                 <span>⚙️</span> Postavke
-              </button>
-              <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
-                <span>❓</span> O nama
               </button>
             </nav>
 
@@ -144,14 +141,14 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Preuzmi pdf dokument
+                Preuzmi PDF dokument
               </button>
             </div>
 
             <!-- Uzeti lijekovi/suplementi -->
             <div class="bg-white rounded-2xl shadow-md p-6">
               <h4 class="text-2xl font-bold text-cyan-600 mb-4">Uzeti lijekovi/suplementi</h4>
-              <p class="text-gray-600 mb-6">Prikaz povljienih lijekova/suplementata u njihov utjecaj</p>
+              <p class="text-gray-600 mb-6">Prikaz povijesti lijekova/suplementata u njihov utjecaj</p>
 
               <div class="space-y-4">
                 <div 
@@ -178,7 +175,7 @@
             <!-- Osobno unesene bilješke -->
             <div class="bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-2xl shadow-md p-6 text-white">
               <h4 class="text-2xl font-bold mb-4">Osobno unesene bilješke</h4>
-              <p class="text-sm mb-6 opacity-90">Odjeceni / zaostatanh o lijeku/suplementu</p>
+              <p class="text-sm mb-6 opacity-90">Dojmovi o lijeku/suplementu</p>
 
               <div class="grid grid-cols-2 gap-4">
                 <div 
@@ -212,6 +209,8 @@ import api from "../usluge/api";
 
 const imeKorisnika = ref("Barbara");
 const menuOpen = ref(false);
+const trenutniDatum = ref("");
+const trenutnoVrijeme = ref("");
 
 const idiNaPostavke = () => {
   menuOpen.value = false;
@@ -303,7 +302,27 @@ const preuzimiPDF = async () => {
   }
 };
 
+const azurirajVrijeme = () => {
+  const sada = new Date();
+  
+  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
+  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
+  const danTjedna = daniTjedna[sada.getDay()];
+  
+  // Format vremena: "19:23"
+  const sati = String(sada.getHours()).padStart(2, '0');
+  const minute = String(sada.getMinutes()).padStart(2, '0');
+  
+  trenutniDatum.value = danTjedna;
+  trenutnoVrijeme.value = `${sati}:${minute}`;
+};
+
 onMounted(async () => {
+  // Ažuriraj vrijeme odmah
+  azurirajVrijeme();
+  // Ažuriraj vrijeme svaku sekun
+  setInterval(azurirajVrijeme, 1000);
+  
   try {
     const res = await api.get("/korisnik/profil");
     imeKorisnika.value = res.data.ime || "Korisnik";

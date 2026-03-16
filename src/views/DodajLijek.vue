@@ -45,10 +45,10 @@
           </h2>
           <div class="flex items-center gap-4 text-gray-600">
             <span class="bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
-              1. prosinac 2025
+              {{ trenutniDatum }}
             </span>
             <span class="bg-cyan-100 text-cyan-600 px-4 py-2 rounded-full font-semibold">
-              9:41 AM
+              {{ trenutnoVrijeme }}
             </span>
           </div>
         </div>
@@ -238,6 +238,8 @@ const podsjetnik = ref(true);
 
 const imeKorisnika = ref("");
 const menuOpen = ref(false);
+const trenutniDatum = ref("");
+const trenutnoVrijeme = ref("");
 
 const idiNaPostavke = () => {
   menuOpen.value = false;
@@ -250,16 +252,42 @@ const odjava = () => {
   router.push("/prijava");
 };
 
+const azurirajVrijeme = () => {
+  const sada = new Date();
+  
+  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
+  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
+  const danTjedna = daniTjedna[sada.getDay()];
+  
+  // Format vremena: "19:23"
+  const sati = String(sada.getHours()).padStart(2, '0');
+  const minute = String(sada.getMinutes()).padStart(2, '0');
+  
+  trenutniDatum.value = danTjedna;
+  trenutnoVrijeme.value = `${sati}:${minute}`;
+};
+
 onMounted(async () => {
+  // Ažuriraj vrijeme odmah
+  azurirajVrijeme();
+  // Ažuriraj vrijeme svaku sekun
+  setInterval(azurirajVrijeme, 1000);
+  
   try {
     const res = await api.get("/korisnik/profil");
     imeKorisnika.value = res.data.ime || "Korisnik";
   } catch (err) {
     console.error("Greška pri dohvaćanju profila:", err);
+    router.push("/prijava");
   }
 });
 
 const spremiLijek = async () => {
+  if (!localStorage.getItem("token")) {
+    alert("Morate biti prijavljeni da biste dodali lijek");
+    router.push("/prijava");
+    return;
+  }
   try {
     await api.post("/lijekovi", {
       ime: ime.value,
@@ -267,6 +295,7 @@ const spremiLijek = async () => {
       vrijeme: vrijeme.value,
       kolicina: kolicina.value,
       trajanje: trajanje.value,
+      ucestalost: ucestalost.value,
       nacin: "oralno",
       preostalo: kolicina.value,
       podsjetnik: podsjetnik.value

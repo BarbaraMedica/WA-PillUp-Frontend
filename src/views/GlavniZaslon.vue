@@ -45,10 +45,10 @@
           </h2>
           <div class="flex items-center gap-4 text-gray-600">
             <span class="bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
-              1. prosinac 2025
+              {{ trenutniDatum }}
             </span>
             <span class="bg-cyan-100 text-cyan-600 px-4 py-2 rounded-full font-semibold">
-              9:41 AM
+              {{ trenutnoVrijeme }}
             </span>
           </div>
         </div>
@@ -96,15 +96,14 @@
               </button>
             </nav>
 
-            <!-- Calendar -->
             <div class="mt-6 bg-cyan-50 rounded-lg p-4">
               <h3 class="font-bold text-center mb-3">Kalendar</h3>
-              <!-- Dodajte kalendar komponentu ovdje -->
+              <!-- Dodat kalendar komponentu ovdje kasnije -->
+          
             </div>
           </div>
 
-          <!-- Main Content Area -->
-          <div class="col-span-9 bg-light-blue-50 rounded-lg shadow-md p-6">
+          <div class="col-span-9 bg-light-blue-50 rounded-lg shadow-md p-6 border-cyan-200 bg-gray-100">
             <h3 class="text-2xl font-bold text-black-600 mb-4">Današnji raspored</h3>
             <p class="text-gray-600 mb-6">
               Za najbolje rezultate nastojte se držati rasporeda kojeg ste stvorili. 
@@ -112,7 +111,7 @@
             </p>
 
             <!-- Raspored lijekova -->
-            <div class="space-y-4">
+            <div class="space-y-4 border border-cyan-200 bg-white rounded-lg p-4">
               <div
                 v-for="lijek in lijekovi"
                 :key="lijek._id"
@@ -124,7 +123,11 @@
                 </div>
                 <div class="flex items-center gap-4">
                   <span class="text-gray-600">{{ lijek.doza }}</span>
-                  <input type="checkbox" class="w-5 h-5 text-cyan-600" />
+                  <input 
+                    type="checkbox" 
+                    class="w-5 h-5 text-cyan-600" 
+                    @change="potvrdiUzimanje(lijek._id, lijek.vrijeme)"
+                  />
                 </div>
               </div>
             </div>
@@ -145,6 +148,8 @@ const router = useRouter();
 const imeKorisnika = ref("");
 const lijekovi = ref([]);
 const menuOpen = ref(false);
+const trenutniDatum = ref("");
+const trenutnoVrijeme = ref("");
 
 const idiNaPostavke = () => {
   menuOpen.value = false;
@@ -157,7 +162,44 @@ const odjava = () => {
   router.push("/prijava");
 };
 
+const azurirajVrijeme = () => {
+  const sada = new Date();
+  
+  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
+  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
+  const danTjedna = daniTjedna[sada.getDay()];
+  
+  // Format vremena: "19:23"
+  const sati = String(sada.getHours()).padStart(2, '0');
+  const minute = String(sada.getMinutes()).padStart(2, '0');
+  
+  trenutniDatum.value = danTjedna;
+  trenutnoVrijeme.value = `${sati}:${minute}`;
+};
+
+const potvrdiUzimanje = async (lijekId, vrijeme) => {
+  try {
+    await api.post(`/lijekovi/${lijekId}/uzimanje`, { vrijeme });
+    alert("Uzimanje lijeka potvrđeno!");
+    
+    const lijekoviRes = await api.get("/lijekovi");
+    lijekovi.value = lijekoviRes.data;
+  } catch (error) {
+    console.error("Greška pri potvrdi uzimanja:", error);
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Status:", error.response.status);
+    }
+    alert("Greška pri potvrdi uzimanja");
+  }
+};
+
 onMounted(async () => {
+  // Ažuriraj vrijeme odmah
+  azurirajVrijeme();
+  // Ažuriraj vrijeme svaku sekun
+  setInterval(azurirajVrijeme, 1000);
+  
   try {
     // Dohvati profil korisnika
     const profilRes = await api.get("/korisnik/profil");
@@ -165,6 +207,7 @@ onMounted(async () => {
 
     // Dohvati lijekove korisnika
     const lijekoviRes = await api.get("/lijekovi");
+    console.log("lijekovi response:", lijekoviRes.data);
     lijekovi.value = lijekoviRes.data;
   } catch (error) {
     console.error("Greška pri dohvaćanju podataka:", error);

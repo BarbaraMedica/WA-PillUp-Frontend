@@ -45,10 +45,10 @@
           </h2>
           <div class="flex items-center gap-4 text-gray-600">
             <span class="bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
-              1. prosinac 2025
+              {{ trenutniDatum }}
             </span>
             <span class="bg-cyan-100 text-cyan-600 px-4 py-2 rounded-full font-semibold">
-              9:41 AM
+              {{ trenutnoVrijeme }}
             </span>
           </div>
         </div>
@@ -89,9 +89,6 @@
                 class="w-full text-left px-4 py-3 bg-cyan-50 text-cyan-600 rounded-lg font-semibold flex items-center gap-2"
               >
                 <span>⚙️</span> Postavke
-              </button>
-              <button class="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center gap-2">
-                <span>❓</span> O nama
               </button>
             </nav>
 
@@ -169,8 +166,8 @@
                       <div class="w-10 h-10 bg-white rounded-full transform -rotate-45"></div>
                     </div>
                     <div>
-                      <h4 class="text-lg font-bold text-gray-800">{{ lijek.naziv }}</h4>
-                      <p class="text-sm text-gray-600">{{ lijek.vrsta }}</p>
+                      <h4 class="text-lg font-bold text-gray-800">{{ lijek.ime }}</h4>
+                      <p class="text-sm text-gray-600">{{ lijek.doza }}</p>
                     </div>
                   </div>
 
@@ -265,16 +262,9 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const imeKorisnika = ref("Barbara");
-const lijekovi = ref([
-  { id: 1, naziv: "Aspirin", vrsta: "1 tableta", vrijeme: "Pon, 8 AM" },
-  { id: 2, naziv: "Vitamin C", vrsta: "1 kapsula", vrijeme: "Pon, 12 PM" },
-  { id: 3, naziv: "Lisinopril", vrsta: "Pods tableta", vrijeme: "Uto, 8 AM" },
-  { id: 4, naziv: "Metformin", vrsta: "1 tableta", vrijeme: "Uto, 6 PM" },
-  { id: 5, naziv: "Ibuprofen", vrsta: "1 tableta", vrijeme: "Sri, 8 AM" },
-  { id: 6, naziv: "Simvastatin", vrsta: "Pods tableta", vrijeme: "Sri, 9 PM" },
-  { id: 7, naziv: "Levothyroxine", vrsta: "1 tableta", vrijeme: "Pet, 7 AM" },
-  { id: 8, naziv: "Omeprazole", vrsta: "Otopina tableta", vrijeme: "Pet, 8 PM" }
-]);
+const lijekovi = ref([]);
+const trenutniDatum = ref("");
+const trenutnoVrijeme = ref("");
 
 const postavke = ref({
   zvuk: true,
@@ -335,7 +325,27 @@ const spremiPostavke = async () => {
   }
 };
 
+const azurirajVrijeme = () => {
+  const sada = new Date();
+  
+  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
+  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
+  const danTjedna = daniTjedna[sada.getDay()];
+  
+  // Format vremena: "19:23"
+  const sati = String(sada.getHours()).padStart(2, '0');
+  const minute = String(sada.getMinutes()).padStart(2, '0');
+  
+  trenutniDatum.value = danTjedna;
+  trenutnoVrijeme.value = `${sati}:${minute}`;
+};
+
 onMounted(async () => {
+  // Ažuriraj vrijeme odmah
+  azurirajVrijeme();
+  // Ažuriraj vrijeme svaku sekun
+  setInterval(azurirajVrijeme, 1000);
+  
   try {
     const res = await api.get("/korisnik/profil");
     imeKorisnika.value = res.data.ime || "Korisnik";
@@ -343,9 +353,7 @@ onMounted(async () => {
     
     // Dohvati lijekove s podsjetnicima
     const lijekoviRes = await api.get("/lijekovi/sa-podsjetnicima");
-    if (lijekoviRes.data.length > 0) {
-      lijekovi.value = lijekoviRes.data;
-    }
+    lijekovi.value = lijekoviRes.data;
     
     // Dohvati postavke
     const postavkeRes = await api.get("/korisnik/postavke");
