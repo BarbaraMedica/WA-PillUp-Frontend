@@ -180,7 +180,7 @@
                       @click="obrisiLijek(lijek.id)"
                       class="px-4 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-semibold transition-colors"
                     >
-                      🗑️
+                      Izbriši
                     </button>
                   </div>
                 </div>
