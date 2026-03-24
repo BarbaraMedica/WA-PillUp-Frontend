@@ -190,6 +190,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const imeKorisnika = ref("");
+const menuOpen = ref(false);
 const pozitivni = ref(0)
 const neutralni = ref(0)
 const negativni = ref(0)

@@ -1,6 +1,6 @@
 <template>
   <div class="w-64 h-64 mx-auto">
-    <DoughnutChart :chart-data="chartData" :chart-options="chartOptions" />
+    <Doughnut :data="chartData" :options="chartOptions" />
   </div>
 </template>
 
@@ -21,7 +21,6 @@ const props = defineProps({
   statistika: {
     type: Object,
     required: true
-    // očekuje { naVrijeme: 10, kasno: 2, preskoceno: 1 }
   }
 });
 
@@ -31,9 +30,9 @@ const chartData = computed(() => ({
     {
       label: "Uzimanje lijekova",
       data: [
-        props.statistika.naVrijeme || 0,
-        props.statistika.kasno || 0,
-        props.statistika.preskoceno || 0
+        props.statistika?.naVrijeme || 0,
+        props.statistika?.kasno || 0,
+        props.statistika?.preskoceno || 0
       ],
       backgroundColor: ["#06b6d4", "#facc15", "#f87171"],
       borderWidth: 2
@@ -44,25 +43,7 @@ const chartData = computed(() => ({
 const chartOptions = {
   responsive: true,
   plugins: {
-    legend: {
-      position: "bottom"
-    },
-    tooltip: {
-      callbacks: {
-        label: function(context) {
-          const total = context.dataset.data.reduce((a,b)=>a+b,0);
-          const value = context.raw;
-          const percent = total ? ((value/total)*100).toFixed(1) : 0;
-          return `${context.label}: ${value} (${percent}%)`;
-        }
-      }
-    }
+    legend: { position: "bottom" }
   }
 };
-
-const DoughnutChart = Doughnut;
 </script>
-
-<style scoped>
-
-</style>

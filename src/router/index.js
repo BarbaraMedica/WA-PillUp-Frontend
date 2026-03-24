@@ -10,6 +10,9 @@ import AIAnaliza from "../views/AIAnaliza.vue";
 import Postavke from '../views/Postavke.vue';
 import Statistika from "../views/Statistika.vue";
 
+
+
+
 const routes = [
   {
     path: "/",             
@@ -34,22 +37,26 @@ const routes = [
   { 
     path: '/moji-lijekovi', 
     name: 'MojiLijekovi',
-    component: MojiLijekovi
+    component: MojiLijekovi,
+    meta: { requiresAuth: true }
   },
   {
     path: "/uredi-lijek/:id",
     name: "UrediLijek",
-    component: () => import("../views/UrediLijek.vue")
+    component: () => import("../views/UrediLijek.vue"),
+    meta: { requiresAuth: true }
   },
   {
   path: "/dodaj-lijek",
   name: "DodajLijek",
   component: DodajLijek,
+  meta: { requiresAuth: true }
 },
   { 
     path: '/pdf-izvjestaj', 
     name: 'PDFIzvjestaj',
-    component: PDFIzvjestaj
+    component: PDFIzvjestaj,
+    meta: { requiresAuth: true }
   },
   {
     path: "/ai-analiza",
@@ -64,13 +71,20 @@ const routes = [
   {
     path: "/statistika",
     name: "Statistika",
-    component: Statistika
+    component: Statistika,
+    meta: { requiresAuth: true }
   }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !localStorage.getItem("token")) {
+    next("/prijava");
+  } else next();
 });
 
 export default router;

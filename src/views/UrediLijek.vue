@@ -194,7 +194,7 @@ const spremiPromjene = async () => {
   try {
     await api.put(`/lijekovi/${route.params.id}`, forma.value);
     porukaUspjeha.value = true;
-    setTimeout(() => router.push("/lijekovi"), 1500);
+    setTimeout(() => router.push("/moji-lijekovi"), 1500);
   } catch (err) {
     porukaGreske.value = err.response?.data?.message || "Greška pri spremanju";
   } finally {

@@ -101,8 +101,9 @@
 
             <div class="mt-6 bg-cyan-50 rounded-lg p-4">
               <h3 class="font-bold text-center mb-3">Kalendar</h3>
-              <!-- Dodat kalendar komponentu ovdje kasnije -->
-          
+              <div class="mt-6">
+                <Kalendar />
+                </div>
             </div>
           </div>
 
@@ -134,6 +135,45 @@
                 </div>
               </div>
             </div>
+            <!-- Raspoloženja -->
+            <div class="mt-6 bg-cyan-50 rounded-lg p-4">
+              <h3 class="font-bold mb-3 text-center">Raspoloženje</h3>
+              <div class="flex flex-wrap gap-3 justify-center">
+                <button
+                    v-for="(raspolozenje, index) in raspolozenja"
+                    :key="index"
+                    @click="() => { potvrdiRaspolozenje(index); spremiRaspolozenje(raspolozenje) }"
+                    :class="[
+                      'flex flex-col items-center justify-center px-5 py-4 rounded-xl font-semibold transition-all duration-200',
+                      raspolozenje.odabrano 
+                        ? 'bg-cyan-600 text-white scale-105 shadow-md' 
+                        : 'bg-white text-cyan-600 border border-cyan-200 hover:scale-105'
+                    ]"
+                  >
+                  <span class="text-3xl">{{ raspolozenje.emoji }}</span>  <span class="text-sm">{{ raspolozenje.ime }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tegobe -->
+            <div class="mt-6 bg-cyan-50 rounded-lg p-4">
+              <h3 class="font-bold mb-3 text-center">Tegobe</h3>
+              <div class="flex flex-wrap gap-3 justify-center">
+                <button
+                  v-for="(tegoba, index) in tegobe"
+                  :key="index"
+                  @click="() => { potvrdiTegobu(index); spremiTegobu(tegoba.ime) }"
+                  :class="[
+                    'flex flex-col items-center justify-center px-5 py-4 rounded-xl font-semibold transition-all duration-200',
+                    tegoba.odabrano 
+                      ? 'bg-red-600 text-white scale-105 shadow-md' 
+                      : 'bg-white text-red-600 border border-red-200 hover:scale-105'
+                  ]"
+                >
+                  <span class="text-3xl">{{ tegoba.emoji }}</span>  <span class="text-sm">{{ tegoba.ime }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -144,6 +184,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import api from "../usluge/api";
+import Kalendar from "../components/Kalendar.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -194,6 +235,63 @@ const potvrdiUzimanje = async (lijekId, vrijeme) => {
       console.error("Status:", error.response.status);
     }
     alert("Greška pri potvrdi uzimanja");
+  }
+};
+//donji dio emojii sa getemoji.com
+//treba povezati sa statistikom i AI analizom
+const raspolozenja = ref([
+  { ime: "Sretan", emoji: "😄", stanje:"pozitivno", odabrano: false },
+  { ime: "Tužan", emoji: "😢", stanje:"negativno", odabrano: false },
+  { ime: "Umoran", emoji: "😴", stanje:"negativno", odabrano: false },
+  { ime: "Uznemiren", emoji: "😟", stanje:"negativno", odabrano: false },
+  { ime: "Anksiozan", emoji: "😰", stanje:"negativno", odabrano: false },
+  { ime: "Raspoložen", emoji: "😊", stanje:"pozitivno", odabrano: false },
+  { ime: "Opušten", emoji: "😌", stanje:"pozitivno", odabrano: false },
+  { ime: "Normalno", emoji: "😊", stanje:"neutralno", odabrano: false },
+]);
+
+const tegobe = ref([
+  { ime: "Nesanica", emoji: "😴", odabrano: false },
+  { ime: "Glavobolja", emoji: "🤕", odabrano: false },
+  { ime: "Mučnina", emoji: "🤢", odabrano: false },
+  { ime: "Bol u mišićima", emoji: "👎", odabrano: false },
+  { ime: "Probavne smetnje", emoji: "🍽️", odabrano: false },
+  { ime: "Prehlada", emoji: "🤧", odabrano: false },
+  { ime: "Povišena temperatura", emoji: "🌡️", odabrano: false },
+  { ime: "Vrtoglavica", emoji: "😵‍💫", odabrano: false },
+]);
+
+const potvrdiRaspolozenje = (index) => {
+  raspolozenja.value[index].odabrano = !raspolozenja.value[index].odabrano;
+};
+
+const potvrdiTegobu = (index) => {
+  tegobe.value[index].odabrano = !tegobe.value[index].odabrano;
+};
+const spremiRaspolozenje = async (raspolozenjeObj) => {
+  try {
+    await api.post("/raspolozenja", {
+      datum: new Date(),
+      raspolozenje: raspolozenjeObj.ime,
+      stanje: raspolozenjeObj.stanje
+    });
+    alert("Raspoloženje spremljeno!");
+  } catch (error) {
+    console.error("Greška pri spremanju raspoloženja:", error);
+    alert("Greška pri spremanju raspoloženja");
+  }
+};
+
+const spremiTegobu = async (tegoba) => {
+  try {
+    await api.post("/tegobe", {
+      datum: new Date(),
+      tegoba: tegoba
+    });
+    alert("Tegoba spremljena!");
+  } catch (error) {
+    console.error("Greška pri spremanju tegobe:", error);
+    alert("Greška pri spremanju tegobe");
   }
 };
 

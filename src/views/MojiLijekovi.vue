@@ -177,7 +177,7 @@
                       Uredi
                     </button>
                     <button 
-                      @click="obrisiLijek(lijek.id)"
+                      @click="obrisiLijek(lijek._id)"
                       class="px-4 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-semibold transition-colors"
                     >
                       Izbriši
@@ -209,7 +209,7 @@
       class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
     >
       <option value="">-- Odaberite lijek --</option>
-      <option v-for="lijek in lijekovi" :key="lijek.id" :value="lijek.id">
+      <option v-for="lijek in lijekovi" :key="lijek._id" :value="lijek._id">
         {{ lijek.ime }} ({{ lijek.doza }})
       </option>
     </select>
@@ -338,10 +338,14 @@ const urediLijek = (id) => {
 };
 
 const obrisiLijek = async (id) => {
+  if (!id) {
+    console.error("Greška: ID lijeka nije definiran");
+    return;
+  }
   if (confirm("Jeste li sigurni da želite obrisati ovaj lijek?")) {
     try {
       await api.delete(`/lijekovi/${id}`);
-      await dohvatiLijekove();
+      await dohvatiLijekove(); // osvježava listu lijekova
     } catch (error) {
       console.error("Greška pri brisanju lijeka:", error);
       alert("Došlo je do greške pri brisanju lijeka");
@@ -389,7 +393,7 @@ const dohvatiBiljeske = async () => {
 };
 
 const imeLijekaPoId = (id) => {
-  const lijek = lijekovi.value.find(l => l.id === id);
+  const lijek = lijekovi.value.find(l => l._id === id);
   return lijek ? lijek.ime : 'Nepoznat lijek';
 };
 
