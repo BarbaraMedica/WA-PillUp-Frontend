@@ -102,38 +102,7 @@
               
             </nav>
 
-            <!-- Calendar -->
-            <div class="mt-6 bg-cyan-50 rounded-lg p-4">
-              <h3 class="font-bold text-center mb-3">Kalendar</h3>
-              <div class="flex items-center justify-between mb-2">
-                <button class="text-cyan-600">&lt;</button>
-                <span class="font-semibold">Sep 2025</span>
-                <button class="text-cyan-600">&gt;</button>
-              </div>
-              <div class="grid grid-cols-7 gap-1 text-xs text-center">
-                <div class="font-semibold">Su</div>
-                <div class="font-semibold">Mo</div>
-                <div class="font-semibold">Tu</div>
-                <div class="font-semibold">We</div>
-                <div class="font-semibold">Th</div>
-                <div class="font-semibold">Fr</div>
-                <div class="font-semibold">Sa</div>
-                <div class="p-1">1</div>
-                <div class="p-1">2</div>
-                <div class="p-1">3</div>
-                <div class="p-1">4</div>
-                <div class="p-1">5</div>
-                <div class="p-1">6</div>
-                <div class="p-1">7</div>
-                <div class="p-1">8</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">9</div>
-                <div class="p-1">10</div>
-                <div class="p-1">11</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">12</div>
-                <div class="p-1">13</div>
-                <div class="p-1">14</div>
-              </div>
-            </div>
+            <Kalendar />
           </div>
 
           <!-- Main Content -->
@@ -170,7 +139,19 @@
               <label class="block font-semibold mb-1">Doza</label>
               <input v-model="doza" class="input" placeholder="Npr. 275mg" />
             </div>
-
+              <div>
+              <label class="block font-semibold mb-1">Način primjene</label>
+              <select v-model="nacin" class="input">
+                <option value="oralno">Oralno (tablete, kapsule)</option>
+                <option value="intravenozno">Intravenozno (IV)</option>
+                <option value="intramuskularno">Intramuskularno (IM)</option>
+                <option value="topikalno">Topikalno (krema, gel)</option>
+                <option value="inhaler">Inhaler</option>
+                <option value="sublingvalno">Sublingvalno (pod jezik)</option>
+                <option value="nazalno">Nazalno (kapi, sprej)</option>
+                <option value="ostalo">Ostalo</option>
+              </select>
+            </div>
             <div>
               <label class="block font-semibold mb-1">
                 Koliko tableta/kapsula sadrži pakiranje
@@ -234,7 +215,7 @@
 import { ref, onMounted } from "vue";
 import api from "../usluge/api";
 import { useRouter } from "vue-router";
-
+import Kalendar from "@/components/Kalendar.vue";
 const router = useRouter();
 
 const ime = ref("");
@@ -244,7 +225,7 @@ const vrijeme = ref("08:00");
 const kolicina = ref(null);
 const trajanje = ref(3);
 const podsjetnik = ref(true);
-
+const nacin = ref("oralno");
 const imeKorisnika = ref("");
 const menuOpen = ref(false);
 const trenutniDatum = ref("");
@@ -264,9 +245,9 @@ const odjava = () => {
 const azurirajVrijeme = () => {
   const sada = new Date();
   
-  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
-  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
-  const danTjedna = daniTjedna[sada.getDay()];
+  // Format datuma: "Ponedjeljak, 5. listopada 2024"
+  const danTjedna = sada.toLocaleDateString("hr-HR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  
   
   // Format vremena: "19:23"
   const sati = String(sada.getHours()).padStart(2, '0');
@@ -305,7 +286,7 @@ const spremiLijek = async () => {
   kolicina: Number(kolicina.value),
   trajanje: Number(trajanje.value),
   ucestalost: Number(ucestalost.value),
-  nacin: "oralno",
+  nacin: nacin.value,
   preostalo: Number(kolicina.value),
   podsjetnik: podsjetnik.value
 });

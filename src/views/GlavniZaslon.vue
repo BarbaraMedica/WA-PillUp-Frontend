@@ -130,7 +130,7 @@
                   <input 
                     type="checkbox" 
                     class="w-5 h-5 text-cyan-600" 
-                    @change="potvrdiUzimanje(lijek._id, lijek.vrijeme)"
+                    @change="potvrdiUzimanje(lijek._id, lijek.vrijeme, index)"
                   />
                 </div>
               </div>
@@ -209,9 +209,7 @@ const odjava = () => {
 const azurirajVrijeme = () => {
   const sada = new Date();
   
-  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
-  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
-  const danTjedna = daniTjedna[sada.getDay()];
+  const danTjedna = sada.toLocaleDateString("hr-HR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   
   // Format vremena: "19:23"
   const sati = String(sada.getHours()).padStart(2, '0');
@@ -224,6 +222,7 @@ const azurirajVrijeme = () => {
 const potvrdiUzimanje = async (lijekId, vrijeme) => {
   try {
     await api.post(`/lijekovi/${lijekId}/uzimanje`, { vrijeme });
+    await api.get("/statistika/uzimanje");
     alert("Uzimanje lijeka potvrđeno!");
     
     const lijekoviRes = await api.get("/lijekovi");
@@ -303,16 +302,23 @@ onMounted(async () => {
   
   try {
     // Dohvati profil korisnika
+    const resLijekovi = await api.get("/lijekovi");
+    const sviLijekovi = resLijekovi.data;
+    const uzimanjaRes = await api.get("/lijekovi/danasnja-uzimanja");
+    const popijenoDanas = uzimanjaRes.data;
+    lijekovi.value = sviLijekovi.map(l => {
+    const zapis = popijenoDanas.find(u => String(u.lijek) === String(l._id));
+    return {
+      ...l,
+      uzetDanas: !!zapis,
+      statusUzimanja: zapis ? zapis.status : null
+    };
+    });
+
     const profilRes = await api.get("/korisnik/profil");
     imeKorisnika.value = profilRes.data.ime || "Korisnik";
-
-    // Dohvati lijekove korisnika
-    const lijekoviRes = await api.get("/lijekovi");
-    console.log("lijekovi response:", lijekoviRes.data);
-    lijekovi.value = lijekoviRes.data;
   } catch (error) {
-    console.error("Greška pri dohvaćanju podataka:", error);
-    imeKorisnika.value = "Korisnik";
+    console.error("Greška:", error);
   }
 });
 </script>

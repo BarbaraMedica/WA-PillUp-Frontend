@@ -99,38 +99,7 @@
                 </button>
             </nav>
 
-            <!-- Calendar -->
-            <div class="mt-6 bg-cyan-50 rounded-lg p-4">
-              <h3 class="font-bold text-center mb-3">Kalendar</h3>
-              <div class="flex items-center justify-between mb-2">
-                <button class="text-cyan-600">&lt;</button>
-                <span class="font-semibold">Sep 2025</span>
-                <button class="text-cyan-600">&gt;</button>
-              </div>
-              <div class="grid grid-cols-7 gap-1 text-xs text-center">
-                <div class="font-semibold">Su</div>
-                <div class="font-semibold">Mo</div>
-                <div class="font-semibold">Tu</div>
-                <div class="font-semibold">We</div>
-                <div class="font-semibold">Th</div>
-                <div class="font-semibold">Fr</div>
-                <div class="font-semibold">Sa</div>
-                <div class="p-1">1</div>
-                <div class="p-1">2</div>
-                <div class="p-1">3</div>
-                <div class="p-1">4</div>
-                <div class="p-1">5</div>
-                <div class="p-1">6</div>
-                <div class="p-1">7</div>
-                <div class="p-1">8</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">9</div>
-                <div class="p-1">10</div>
-                <div class="p-1">11</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">12</div>
-                <div class="p-1">13</div>
-                <div class="p-1">14</div>
-              </div>
-            </div>
+            <Kalendar/>
           </div>
 
           <!-- Main Content -->
@@ -148,10 +117,13 @@
 
               <!-- Lijekovi Grid -->
               <div v-if="lijekovi.length > 0" class="grid grid-cols-3 gap-6">
-                <div 
-                  v-for="lijek in lijekovi" 
-                  :key="lijek.id"
-                  class="bg-cyan-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                <div
+                  v-for="lijek in lijekovi"
+                  :key="lijek._id"
+                  :class="[
+                    'rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow',
+                    lijek.preostalo <= 5 ? 'bg-red-50 border-2 border-red-400' : 'bg-cyan-50'
+                  ]"
                 >
                   <!-- Ikona lijeka -->
                   <div class="flex justify-center mb-4">
@@ -165,6 +137,7 @@
 
                   <div class="space-y-2 text-sm text-gray-700">
                     <p><strong>Preostalo tableta:</strong> {{ lijek.preostalo }}</p>
+                    <p v-if="lijek.preostalo <= 5" class="text-xs text-red-600"> Male zalihe - nabavi novi!</p>
                     <p><strong>Treba naručiti za:</strong> {{ izracunajDanaDoNarucivanja(lijek) }} dana</p>
                     <p class="text-xs text-gray-500">{{ lijek.ucestalost }}x dnevno - {{ lijek.vrijeme }}</p>
                   </div>
@@ -264,15 +237,15 @@
     <div class="space-y-3 max-h-60 overflow-y-auto">
       <div 
         v-for="b in biljeske" 
-        :key="b.id"
+        :key="b._id"
         class="bg-gray-50 rounded-lg p-3 border-l-4 border-cyan-400"
       >
         <div class="flex items-center justify-between mb-1">
-          <span class="font-semibold text-sm text-cyan-700">{{ b.lijek_ime || imeLijekaPoId(b.lijek_id) }}</span>
+          <span class="font-semibold text-sm text-cyan-700">{{ b.lijek_ime || 'Nepoznat lijek' }}</span>
           <span class="text-xs text-gray-400 capitalize">{{ b.vrsta }}</span>
         </div>
         <p class="text-sm text-gray-700">{{ b.tekst }}</p>
-        <p class="text-xs text-gray-400 mt-1">{{ formatirajDatum(b.datum_unosa || b.created_at) }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ formatirajDatum(b.createdAt) }}</p>
       </div>
     </div>
   </div>
@@ -288,6 +261,7 @@
 import { ref, computed, onMounted } from "vue";
 import api from "../usluge/api";
 import { useRouter } from "vue-router";
+import Kalendar from "@/components/Kalendar.vue";
 
 const router = useRouter();
 
@@ -386,6 +360,7 @@ const spreminiBiljesku = async () => {
 const dohvatiBiljeske = async () => {
   try {
     const res = await api.get("/biljeske");
+    console.log(res.data);
     biljeske.value = res.data;
   } catch (error) {
     console.error("Greška pri dohvaćanju bilješki:", error);
@@ -407,8 +382,8 @@ const formatirajDatum = (datum) => {
 
 const azurirajVrijeme = () => {
   const sada = new Date();
-  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
-  trenutniDatum.value = daniTjedna[sada.getDay()];
+  const danTjedna = sada.toLocaleDateString("hr-HR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  trenutniDatum.value = danTjedna;
   const sati = String(sada.getHours()).padStart(2, '0');
   const minute = String(sada.getMinutes()).padStart(2, '0');
   trenutnoVrijeme.value = `${sati}:${minute}`;

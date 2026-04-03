@@ -102,38 +102,9 @@
               </button>
             </nav>
 
-            <!-- Calendar -->
-            <div class="mt-6 bg-cyan-50 rounded-lg p-4">
-              <h3 class="font-bold text-center mb-3">Kalendar</h3>
-              <div class="flex items-center justify-between mb-2">
-                <button class="text-cyan-600">&lt;</button>
-                <span class="font-semibold">Sep 2025</span>
-                <button class="text-cyan-600">&gt;</button>
-              </div>
-              <div class="grid grid-cols-7 gap-1 text-xs text-center">
-                <div class="font-semibold">Su</div>
-                <div class="font-semibold">Mo</div>
-                <div class="font-semibold">Tu</div>
-                <div class="font-semibold">We</div>
-                <div class="font-semibold">Th</div>
-                <div class="font-semibold">Fr</div>
-                <div class="font-semibold">Sa</div>
-                <div class="p-1">1</div>
-                <div class="p-1">2</div>
-                <div class="p-1">3</div>
-                <div class="p-1">4</div>
-                <div class="p-1">5</div>
-                <div class="p-1">6</div>
-                <div class="p-1">7</div>
-                <div class="p-1">8</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">9</div>
-                <div class="p-1">10</div>
-                <div class="p-1">11</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">12</div>
-                <div class="p-1">13</div>
-                <div class="p-1">14</div>
-              </div>
-            </div>
+            <div class="mt-6">
+              <Kalendar />
+             </div>
           </div>
 
           <!-- Main Content -->
@@ -153,26 +124,51 @@
 
             <!-- Uzeti lijekovi/suplementi -->
             <div class="bg-white rounded-2xl shadow-md p-6">
-              <h4 class="text-2xl font-bold text-cyan-600 mb-4">Uzeti lijekovi/suplementi</h4>
-              <p class="text-gray-600 mb-6">Prikaz povijesti lijekova/suplementata i njihov utjecaj</p>
+              <h4 class="text-2xl font-bold text-cyan-600 mb-4">
+                Uzeti lijekovi / suplementi
+              </h4>
+              <p class="text-gray-600 mb-6">
+                Prikaz povijesti uzimanja lijekova
+              </p>
+
+              <div v-if="uzetiLijekovi.length === 0" class="text-gray-500">
+                Nema podataka o uzimanju lijekova.
+              </div>
 
               <div class="space-y-4">
-                <div 
-                  v-for="lijek in uzetiLijekovi" 
-                  :key="lijek.id"
-                  class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                <div
+                  v-for="u in uzetiLijekovi"
+                  :key="u._id"
+                  class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border"
                 >
-                  <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-yellow-400 rounded-full flex items-center justify-center shadow-md transform rotate-45">
-                      <div class="w-8 h-8 bg-white rounded-full transform -rotate-45"></div>
-                    </div>
-                    <div>
-                      <h5 class="font-bold text-gray-800">{{ lijek.naziv }}</h5>
-                      <p class="text-sm text-gray-600">{{ lijek.opis }}</p>
-                    </div>
+                  <!-- LIJEVI DIO -->
+                  <div>
+                    <h5 class="font-bold text-gray-800 text-lg">
+                      {{ u.lijek?.ime || "Nepoznat lijek" }}
+                    </h5>
+
+                    <p class="text-sm text-gray-600 mt-1">
+                      Doza: <span class="font-medium">{{ u.lijek?.doza || "Nije uneseno" }}</span> |
+                      Način: <span class="font-medium">{{ u.lijek?.nacin || "Nije uneseno" }}</span> |
+                      Preostalo: <span class="font-medium">{{ u.lijek?.preostalo ?? "Nije uneseno" }}</span>
+                    </p>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ new Date(u.datum).toLocaleDateString("hr-HR") }}
+                      u {{ u.vrijeme || "--:--" }}
+                    </p>
                   </div>
-                  <div class="text-right">
-                    <p class="font-semibold text-gray-800">{{ lijek.efekt }}</p>
+
+                  <!-- DESNI DIO -->
+                  <div>
+                    <span
+                      class="px-3 py-1 rounded-full text-sm font-semibold"
+                      :class="u.status === 'uzet'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'"
+                    >
+                      {{ u.status === "uzet" ? "Uzeto" : "Preskočeno" }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -184,21 +180,13 @@
               <p class="text-sm mb-6 opacity-90">Dojmovi o lijeku/suplementu</p>
 
               <div class="grid grid-cols-2 gap-4">
-                <div 
-                  v-for="biljeska in biljeske" 
-                  :key="biljeska.id"
-                  class="bg-cyan-300/50 backdrop-blur rounded-xl p-4"
-                >
-                  <div class="flex items-start gap-3 mb-3">
-                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                      <span class="text-2xl">{{ biljeska.ikona }}</span>
-                    </div>
-                    <div class="flex-1">
-                      <h5 class="font-bold text-lg mb-1">{{ biljeska.naziv }}</h5>
-                      <p class="text-xs opacity-90">{{ biljeska.kategorija }}</p>
-                    </div>
-                  </div>
-                  <p class="text-sm leading-relaxed">{{ biljeska.tekst }}</p>
+                <div v-for="biljeska in biljeske" :key="biljeska._id" class="bg-cyan-300/50 backdrop-blur rounded-xl p-4">
+                  <h5 class="font-bold text-lg mb-1">
+                    {{ biljeska.lijek_id ? biljeska.lijek_id.ime : "Nije vezano uz lijek" }}
+                    <span class="text-sm opacity-70">({{ biljeska.lijek_id?.doza || "—" }})</span>
+                  </h5>
+                  <p class="text-xs opacity-90">{{ biljeska.vrsta }}</p>
+                  <p class="text-sm leading-relaxed mt-2">{{ biljeska.tekst }}</p>
                 </div>
               </div>
             </div>
@@ -213,6 +201,8 @@
 import { ref, computed, onMounted } from "vue";
 import api from "../usluge/api";
 import { useRouter } from "vue-router";
+import Kalendar from "@/components/Kalendar.vue";
+
 const router = useRouter();
 const imeKorisnika = ref("");
 const menuOpen = ref(false);
@@ -230,63 +220,10 @@ const odjava = () => {
   router.push("/prijava");
 };
 
-const uzetiLijekovi = ref([
-  {
-    id: 1,
-    naziv: "Aspirin",
-    opis: "Umanjenje glavobolje",
-    efekt: "Osjećaj djelovanja nakon 30 minuta"
-  },
-  {
-    id: 2,
-    naziv: "Multivitamins",
-    opis: "Dijetski suplement",
-    efekt: "Osjećaj više energičnosti"
-  },
-  {
-    id: 3,
-    naziv: "Melatonin",
-    opis: "Za probleme sa spavanjem",
-    efekt: "Zabilježeno pomogao sa kvalitetom sna"
-  },
-  {
-    id: 4,
-    naziv: "Željezo",
-    opis: "Mikronutrient",
-    efekt: "Manji osjećaj slabosti"
-  }
-]);
+const uzetiLijekovi = ref([]);
 
-const biljeske = ref([
-  {
-    id: 1,
-    naziv: "Aspirin",
-    kategorija: "Protiv bolova",
-    ikona: "💊",
-    tekst: "Nakon uzimanja aspirina, moje su glavobolje nestale nakon oko 30 minuta. Djelovanje je brzo!"
-  },
-  {
-    id: 2,
-    naziv: "Melatonin",
-    kategorija: "Pomoć za spavanje",
-    ikona: "😴",
-    tekst: "Melatonin mi je pomogao da brže zaspim i da se dobro odmorim. Osjećam se puno svežje nakon!"
-  },
-  {
-    id: 3,
-    naziv: "Vitamin C",
-    kategorija: "Imunitet",
-    ikona: "🌿",
-    tekst: "Vitamin C mi daje energiju kroz cijeli dan. Također sam primjetio da se rjeđe prehladim."
-  },
-  {
-    id: 4,
-    naziv: "Željezo kapsule",
-    kategorija: "Manji umor",
-    ikona: "🔴",
-    tekst: "Otkako koristim željezo, primjetila sam poboljšanje u energiji. Manji osjećaji slabosti tijekom dana."
-  }
-]);
+const biljeske = ref([]);
+  
 
 
 
@@ -313,8 +250,7 @@ const azurirajVrijeme = () => {
   const sada = new Date();
   
   // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
-  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
-  const danTjedna = daniTjedna[sada.getDay()];
+  const danTjedna = sada.toLocaleDateString("hr-HR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   
   // Format vremena: "19:23"
   const sati = String(sada.getHours()).padStart(2, '0');

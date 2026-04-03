@@ -102,37 +102,8 @@
               </button>
             </nav>
 
-            <!-- Calendar -->
-            <div class="mt-6 bg-cyan-50 rounded-lg p-4">
-              <h3 class="font-bold text-center mb-3">Kalendar</h3>
-              <div class="flex items-center justify-between mb-2">
-                <button class="text-cyan-600">&lt;</button>
-                <span class="font-semibold">Sep 2025</span>
-                <button class="text-cyan-600">&gt;</button>
-              </div>
-              <div class="grid grid-cols-7 gap-1 text-xs text-center">
-                <div class="font-semibold">Su</div>
-                <div class="font-semibold">Mo</div>
-                <div class="font-semibold">Tu</div>
-                <div class="font-semibold">We</div>
-                <div class="font-semibold">Th</div>
-                <div class="font-semibold">Fr</div>
-                <div class="font-semibold">Sa</div>
-                <div class="p-1">1</div>
-                <div class="p-1">2</div>
-                <div class="p-1">3</div>
-                <div class="p-1">4</div>
-                <div class="p-1">5</div>
-                <div class="p-1">6</div>
-                <div class="p-1">7</div>
-                <div class="p-1">8</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">9</div>
-                <div class="p-1">10</div>
-                <div class="p-1">11</div>
-                <div class="p-1 bg-cyan-600 text-white rounded">12</div>
-                <div class="p-1">13</div>
-                <div class="p-1">14</div>
-              </div>
+            <div>
+              <Kalendar />
             </div>
           </div>
           <!-- Main Content -->
@@ -187,6 +158,7 @@ import { ref, onMounted } from "vue"
 import Chart from "chart.js/auto"
 import api from "../usluge/api";
 import { useRouter } from "vue-router";
+import Kalendar from "@/components/Kalendar.vue";
 
 const router = useRouter();
 const imeKorisnika = ref("");
@@ -197,13 +169,14 @@ const negativni = ref(0)
 const trenutniDatum = ref("");
 const trenutnoVrijeme = ref("");
 
+
+
+
 const azurirajVrijeme = () => {
   const sada = new Date();
   
-  // Format: samo dan tjedna i vrijeme (npr. "Pon, 19:23")
-  const daniTjedna = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub'];
-  const danTjedna = daniTjedna[sada.getDay()];
-  
+ 
+  const danTjedna = sada.toLocaleDateString("hr-HR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   // Format vremena: "19:23"
   const sati = String(sada.getHours()).padStart(2, '0');
   const minute = String(sada.getMinutes()).padStart(2, '0');
@@ -211,6 +184,8 @@ const azurirajVrijeme = () => {
   trenutniDatum.value = danTjedna;
   trenutnoVrijeme.value = `${sati}:${minute}`;
 };
+
+
 
 onMounted(async () => {
      // Ažuriraj vrijeme odmah
