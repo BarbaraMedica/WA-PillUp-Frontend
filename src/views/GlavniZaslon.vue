@@ -201,9 +201,8 @@ const idiNaPostavke = () => {
 };
 
 const odjava = () => {
-  localStorage.removeItem("token");
   menuOpen.value = false;
-  router.push("/prijava");
+  router.push("/glavni");
 };
 
 const azurirajVrijeme = () => {

@@ -237,9 +237,8 @@ const idiNaPostavke = () => {
 };
 
 const odjava = () => {
-  localStorage.removeItem("token");
   menuOpen.value = false;
-  router.push("/prijava");
+  router.push("/glavni");
 };
 
 const azurirajVrijeme = () => {
@@ -268,15 +267,13 @@ onMounted(async () => {
     imeKorisnika.value = res.data.ime || "Korisnik";
   } catch (err) {
     console.error("Greška pri dohvaćanju profila:", err);
-    router.push("/prijava");
+    router.push("/glavni");
   }
 });
 
 const spremiLijek = async () => {
   if (!localStorage.getItem("token")) {
-    alert("Morate biti prijavljeni da biste dodali lijek");
-    router.push("/prijava");
-    return;
+    localStorage.setItem("token", "token-user-1");
   }
   try {
     await api.post("/lijekovi", {

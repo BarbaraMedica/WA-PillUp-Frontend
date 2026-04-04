@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Prijava from "../views/Prijava.vue";
-import Registracija from "../views/Registracija.vue";
-import PrvoPostavljanje from '../views/PrvoPostavljanje.vue';
+
 import GlavniZaslon from '../views/GlavniZaslon.vue';
 import MojiLijekovi from '../views/MojiLijekovi.vue'
 import DodajLijek from "../views/DodajLijek.vue";
@@ -15,19 +13,8 @@ import Statistika from "../views/Statistika.vue";
 
 const routes = [
   {
-    path: "/",             
-    name: "Prijava",
-    component: Prijava
-  },
-  {
-    path: "/registracija",
-    name: "Registracija",
-    component: Registracija
-  },
-  { 
-    path: '/prvo-postavljanje', 
-    name: 'PrvoPostavljanje',
-    component: PrvoPostavljanje
+    path: "/",
+    redirect: "/glavni"
   },
   { 
     path: '/glavni', 
@@ -82,9 +69,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !localStorage.getItem("token")) {
-    next("/");
-  } else next();
+  if (typeof localStorage !== "undefined" && !localStorage.getItem("token")) {
+    localStorage.setItem("token", "token-user-1");
+  }
+  next();
 });
 
 export default router;
