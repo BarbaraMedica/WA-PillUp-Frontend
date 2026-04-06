@@ -15,9 +15,10 @@ import Statistika from "../views/Statistika.vue";
 
 const routes = [
   {
-    path: "/",             
+    path: "/",
     name: "Prijava",
-    component: Prijava
+    component: Prijava,
+    alias: "/prijava"
   },
   {
     path: "/registracija",

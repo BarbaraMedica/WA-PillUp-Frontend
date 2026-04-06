@@ -120,6 +120,13 @@ const registracija = async () => {
     });
 
     console.log("Registracija uspješna:", response.data);
+
+    const loginResponse = await api.post("/autentikacija/prijava", {
+      email: email.value,
+      lozinka: lozinka.value
+    });
+
+    localStorage.setItem("token", loginResponse.data.token);
     await router.push("/prvo-postavljanje");
   } catch (err) {
     console.error("Greška pri registraciji:", err);
