@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || "https://wa-pillup-back-end.onrender.com/api";
+
 const api = axios.create({
-  baseURL: "https://wa-pillup-back-end.onrender.com/api"
+  baseURL
 });
 
 // Interceptor za dodavanje tokena
